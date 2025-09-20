@@ -1,7 +1,7 @@
 <template>
-  <Header v-if="!isAccessDeniedPage" title="琉璃月图床" />
+  <Header v-if="!isFullPageLayout" title="琉璃月图床" />
   <main><RouterView /></main>
-  <Footer v-if="!isAccessDeniedPage" />
+  <Footer v-if="!isFullPageLayout" />
   <Toaster />
   <AuthModal />
 </template>
@@ -15,9 +15,9 @@ import { Toaster } from '@/components/ui/toast';
 
 const route = useRoute();
 
-// 检查是否为访问拒绝页面
-const isAccessDeniedPage = computed(() => {
-  return route.name === 'AccessDenied';
+// 检查是否为全页面布局（不显示Header和Footer的页面）
+const isFullPageLayout = computed(() => {
+  return route.name === 'AccessDenied' || route.name === 'NotFound' || route.name === 'NotFoundCatch';
 });
 </script>
 

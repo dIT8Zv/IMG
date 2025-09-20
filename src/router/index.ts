@@ -20,6 +20,16 @@ const router = createRouter({
       name: 'AccessDenied',
       component: () => import('@/views/AccessDenied/AccessDenied.vue'),
     },
+    {
+      path: '/404',
+      name: 'NotFound',
+      component: () => import('@/views/NotFound/NotFound.vue'),
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'NotFoundCatch',
+      component: () => import('@/views/NotFound/NotFound.vue'),
+    },
   ],
 })
 

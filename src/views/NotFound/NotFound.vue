@@ -6,20 +6,20 @@
         <!-- Error Code -->
         <div class="mb-8">
           <h1 class="text-8xl md:text-9xl font-bold text-gray-300 leading-none">
-            403
+            404
           </h1>
         </div>
 
         <!-- Error Message -->
         <div class="mb-8">
           <h2 class="text-2xl md:text-3xl font-semibold text-gray-900 mb-4">
-            访问被拒绝
+            页面未找到
           </h2>
           <p class="text-gray-600 text-lg leading-relaxed mb-6">
-            您没有权限访问此资源。
+            抱歉，您访问的页面不存在或已被移除。
           </p>
           <p class="text-gray-500 text-sm">
-            错误 1020: 访问被拒绝
+            错误 404: 页面未找到
           </p>
         </div>
 
@@ -161,7 +161,7 @@ onMounted(async () => {
 <style scoped>
 /* 响应式高度计算 */
 .container {
-  --header-height: 0px; /* AccessDenied页面没有header */
+  --header-height: 0px; /* NotFound页面没有header */
   --footer-height: 80px; /* footer大约高度，会被JS动态更新 */
   --content-padding: 2rem;
   --vh: 1vh; /* 动态视口高度单位 */
