@@ -46,9 +46,23 @@
               <span class="font-medium text-gray-700">文件类型:</span>
               <p class="text-gray-900">{{ image.mime_type || 'image/*' }}</p>
             </div>
-            <div>
+            <div class="col-span-2 sm:col-span-1">
               <span class="font-medium text-gray-700">上传IP:</span>
-              <p class="text-gray-900">{{ image.upload_ip || '未知' }}</p>
+              <div class="flex items-center gap-2 mt-1">
+                <p class="text-gray-900 break-all font-mono text-sm bg-gray-50 px-2 py-1 rounded border">
+                  {{ image.upload_ip || '未知' }}
+                </p>
+                <button
+                  v-if="image.upload_ip && image.upload_ip !== '未知'"
+                  @click="copyToClipboard(image.upload_ip)"
+                  class="flex-shrink-0 p-1 text-gray-500 hover:text-gray-700 transition-colors"
+                  title="复制IP地址"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                </button>
+              </div>
             </div>
           </div>
 
@@ -108,5 +122,27 @@ const formatFileSize = (bytes: number) => {
 
 const formatDate = (dateString: string) => {
   return new Date(dateString).toLocaleString('zh-CN')
+}
+
+const copyToClipboard = async (text: string) => {
+  try {
+    await navigator.clipboard.writeText(text)
+    // 这里可以添加一个简单的提示，但为了保持组件简洁，暂时省略
+    console.log('IP地址已复制到剪贴板:', text)
+  } catch (err) {
+    console.error('复制失败:', err)
+    // 降级方案：使用传统的复制方法
+    const textArea = document.createElement('textarea')
+    textArea.value = text
+    document.body.appendChild(textArea)
+    textArea.select()
+    try {
+      document.execCommand('copy')
+      console.log('IP地址已复制到剪贴板:', text)
+    } catch (fallbackErr) {
+      console.error('降级复制也失败:', fallbackErr)
+    }
+    document.body.removeChild(textArea)
+  }
 }
 </script>

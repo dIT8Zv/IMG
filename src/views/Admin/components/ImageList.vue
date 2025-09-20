@@ -36,7 +36,16 @@
             <span>{{ formatFileSize(image.file_size) }}</span>
             <span>{{ formatDate(image.created_at) }}</span>
             <span>ID: {{ image.id }}</span>
-            <span>IP: {{ image.upload_ip || '未知' }}</span>
+            <span 
+              class="group relative cursor-help"
+              :title="image.upload_ip || '未知'"
+            >
+              IP: {{ truncateIP(image.upload_ip || '未知') }}
+              <!-- 悬停显示完整IP -->
+              <div class="absolute bottom-full left-0 mb-1 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10 pointer-events-none">
+                {{ image.upload_ip || '未知' }}
+              </div>
+            </span>
           </div>
         </div>
 
@@ -109,7 +118,16 @@
               </div>
               <div class="flex items-center gap-4 text-xs text-gray-500">
                 <span>ID: {{ image.id }}</span>
-                <span>IP: {{ image.upload_ip || '未知' }}</span>
+                <span 
+                  class="group relative cursor-help"
+                  :title="image.upload_ip || '未知'"
+                >
+                  IP: {{ truncateIP(image.upload_ip || '未知') }}
+                  <!-- 悬停显示完整IP -->
+                  <div class="absolute bottom-full left-0 mb-1 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10 pointer-events-none">
+                    {{ image.upload_ip || '未知' }}
+                  </div>
+                </span>
               </div>
             </div>
 
@@ -168,6 +186,27 @@ const formatFileSize = (bytes: number) => {
 
 const formatDate = (dateString: string) => {
   return new Date(dateString).toLocaleString('zh-CN')
+}
+
+const truncateIP = (ip: string) => {
+  if (!ip || ip === '未知') return ip
+  
+  // IPv4地址不需要截断
+  if (ip.includes('.') && !ip.includes(':')) {
+    return ip
+  }
+  
+  // IPv6地址截断处理
+  if (ip.includes(':')) {
+    // 如果是完整的IPv6地址且长度超过20个字符，进行截断
+    if (ip.length > 20) {
+      // 保留前8个字符和后8个字符，中间用...连接
+      return `${ip.substring(0, 8)}...${ip.substring(ip.length - 8)}`
+    }
+  }
+  
+  // 其他情况直接返回
+  return ip
 }
 
 const onImageError = (event: Event) => {
