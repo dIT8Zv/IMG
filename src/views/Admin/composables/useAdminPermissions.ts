@@ -50,7 +50,7 @@ export function useAdminPermissions() {
     const user = currentUser.value
     const hasUser = !!user
     const permissionLevel = user?.permission_level
-    const canDelete = hasUser && permissionLevel < 2
+    const canDelete = hasUser && permissionLevel !== undefined && permissionLevel < 2
     
     console.log('Admin canDeleteImages check:', {
       hasUser,
