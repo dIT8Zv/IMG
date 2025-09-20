@@ -1,37 +1,41 @@
 <template>
-  <section class="Home pt-4 sm:pt-6">
-    <Alert class="pt-0 pb-2 sm:py-4">
-      <AlertTitle class="font-bold hidden sm:flex sm:gap-2"> <RocketIcon class="h-4 w-4 hidden sm:flex" /> Heads up!</AlertTitle>
-      <AlertDescription class="p-0 text-xs sm:text-sm">
-        <p class="pt-2">无限图片储存数量，你可以上传不限数量的图片！</p>
-        <p>图片首次访问后缓存，"永久"有效，包括全球分布的 CDN，以确保尽可能快地提供图像.</p>
-        <p>骤雨重山图床 是 <a class="text-slate-400" href="https://www.vvhan.com" target="_blank" title="韩小韩博客">韩小韩博客</a> 支持并维护的文件上传项目，致力于为用户提供稳定的永久存储服务。</p>
-        <p style="font-weight: bold">开源地址: <a class="text-[#0969da]" href="https://github.com/uxiaohan/ZYCS-IMG" target="_blank">ZYCS-IMG</a></p>
-      </AlertDescription>
-    </Alert>
+  <section class="Home container mx-auto px-4 py-8 max-w-4xl">
+    <!-- Hero Section -->
+    <div class="text-center mb-10">
+      <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+        琉璃月图床
+      </h1>
+      <p class="text-lg text-gray-600 mb-8">
+        Minekuai Team 制作的高性能图片存储服务
+      </p>
+    </div>
 
-    <!-- 工具栏 -->
-    <div class="pt-6 flex items-center text-sm">
-      <div class="sync shrink-0">
-        <RadioGroup default-value="sync" class="flex items-center gap-4 [&>label]:flex [&>label]:items-center [&>label]:space-x-2 [&>label]:cursor-pointer">
-          <Label for="sync">
-            <RadioGroupItem id="sync" value="sync" />
-            <span>Imgur</span>
-          </Label>
-          <Label for="nosync">
-            <RadioGroupItem id="nosync" value="nosync" disabled />
-            <span class="text-gray-300">待定</span>
-          </Label>
-        </RadioGroup>
+    <!-- Upload Section -->
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-8 mb-8">
+      <div class="text-center mb-6">
+        <h2 class="text-2xl font-semibold text-gray-900 mb-3">上传您的图片</h2>
+        <p class="text-base text-gray-600">支持 JPG、PNG、GIF、WebP 等格式，单个文件最大 15MB</p>
+      </div>
+
+      <!-- Upload Component -->
+      <Upload v-model="fileList" :UploadConfig="UploadConfig" :uploadAPI="uploadAPI" />
+
+      <!-- Upload Tools -->
+      <div v-show="fileList.length" class="flex justify-center gap-4 mt-6">
+        <Button variant="outline" @click="fileList = []" class="px-6 py-3 text-base">
+          清空列表
+        </Button>
+        <Button @click="vh.CopyText(fileList.map((i: any) => i.upload_blob).join('\n'))" class="px-6 py-3 text-base">
+          复制全部链接
+        </Button>
       </div>
     </div>
-    <!-- 上传 -->
-    <Upload v-model="fileList" :UploadConfig="UploadConfig" :uploadAPI="uploadAPI" />
-    <section v-show="fileList.length" class="vh-tools"><Button @click="fileList = []">清空</Button><Button @click="vh.CopyText(fileList.map((i: any) => i.upload_blob).join('\n'))">复制全部</Button></section>
-    <!-- 展示 -->
+
+    <!-- Results -->
     <ResList v-model="fileList" :nodeHost="nodeHost" />
   </section>
 </template>
+
 <script setup lang="ts">
 import vh from 'vh-plugin';
 import { ref, watch } from 'vue';
@@ -39,10 +43,9 @@ import { formatURL } from '@/utils/index';
 import { Button } from '@/components/ui/button';
 import Upload from '@/components/Upload/Upload.vue';
 import ResList from '@/components/ResList/ResList.vue';
-import { RocketIcon } from '@radix-icons/vue';
 import { Label } from '@/components/ui/label';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+
 // IPFS节点
 const nodeHost = ref<string>(import.meta.env.VITE_IMG_API_URL || location.origin);
 // 上传接口
