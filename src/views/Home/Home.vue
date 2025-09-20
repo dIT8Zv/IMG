@@ -14,7 +14,7 @@
     <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-8 mb-8">
       <div class="text-center mb-6">
         <h2 class="text-2xl font-semibold text-gray-900 mb-3">上传您的图片</h2>
-        <p class="text-base text-gray-600">支持 JPG、PNG、GIF、WebP 等格式，单个文件最大 15MB</p>
+        <p class="text-base text-gray-600">支持 JPG、PNG、GIF、WebP 等格式，单个文件最大 100MB</p>
       </div>
 
       <!-- Upload Component -->
@@ -44,17 +44,17 @@ import { Button } from '@/components/ui/button';
 import Upload from '@/components/Upload/Upload.vue';
 import ResList from '@/components/ResList/ResList.vue';
 import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';import { API_CONFIG } from '@/config/api';
 
-// IPFS节点
-const nodeHost = ref<string>(import.meta.env.VITE_IMG_API_URL || location.origin);
-// 上传接口
-const uploadAPI = ref<string>(`${import.meta.env.VITE_IMG_API_URL || location.origin}/upload`);
+// IPFS节点 - 使用统一的API配置
+const nodeHost = ref<string>(API_CONFIG.BASE_URL);
+// 上传接口 - 使用统一的API配置
+const uploadAPI = ref<string>(`${API_CONFIG.BASE_URL}${API_CONFIG.IMAGE.UPLOAD}`);
 // 上传配置
 const UploadConfig = ref<any>({
   AcceptTypes: 'image/*', // 允许上传的类型，使用逗号分隔
   Max: 0, //多选个数，0为不限制
-  MaxSize: 15, //单个文件大小限制，单位：MB
+  MaxSize: 100, //单个文件大小限制，单位：MB
 });
 // 上传列表
 const fileList = ref<Array<any>>(JSON.parse(localStorage.getItem('zychUpImageList') || '[]'));
