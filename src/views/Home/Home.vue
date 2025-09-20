@@ -14,7 +14,7 @@
     <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-8 mb-8">
       <div class="text-center mb-6">
         <h2 class="text-2xl font-semibold text-gray-900 mb-3">上传您的图片</h2>
-        <p class="text-base text-gray-600">支持 JPG、PNG、GIF、WebP 等格式，单个文件最大 100MB</p>
+        <p class="text-base text-gray-600">支持 JPG、PNG、GIF、WebP 等格式，单个文件最大 15MB</p>
       </div>
 
       <!-- Upload Component -->
@@ -38,23 +38,46 @@
 
 <script setup lang="ts">
 import vh from 'vh-plugin';
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 import { formatURL } from '@/utils/index';
 import { Button } from '@/components/ui/button';
 import Upload from '@/components/Upload/Upload.vue';
 import ResList from '@/components/ResList/ResList.vue';
 import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';import { API_CONFIG } from '@/config/api';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { API_CONFIG } from '@/config/api';
+import { useAuth } from '@/composables/useAuth';
+
+// 认证相关
+const { isLoggedIn, user } = useAuth();
 
 // IPFS节点 - 使用统一的API配置
 const nodeHost = ref<string>(API_CONFIG.BASE_URL);
 // 上传接口 - 使用统一的API配置
 const uploadAPI = ref<string>(`${API_CONFIG.BASE_URL}${API_CONFIG.IMAGE.UPLOAD}`);
+
+// 根据用户权限动态计算上传文件大小限制
+const getMaxUploadSize = computed(() => {
+  if (!isLoggedIn.value) {
+    // 未登录用户：15MB
+    return 15;
+  }
+  
+  const permissionLevel = user.value?.permission_level ?? 0;
+  if (permissionLevel >= 0 && permissionLevel <= 2) {
+    // 权限0-2的用户：100MB
+    return 100;
+  }
+  
+  // 其他权限用户：默认15MB
+  return 15;
+});
+
 // 上传配置
 const UploadConfig = ref<any>({
   AcceptTypes: 'image/*', // 允许上传的类型，使用逗号分隔
   Max: 0, //多选个数，0为不限制
-  MaxSize: 100, //单个文件大小限制，单位：MB
+  MaxSize: getMaxUploadSize, //单个文件大小限制，单位：MB，动态根据权限设置
 });
 // 上传列表
 const fileList = ref<Array<any>>(JSON.parse(localStorage.getItem('zychUpImageList') || '[]'));

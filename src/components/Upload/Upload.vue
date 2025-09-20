@@ -11,6 +11,7 @@
       </svg>
       <p>
         <span>点击上传 / 拖拽上传</span>
+        <span class="upload-limit-info">当前上传限制：{{ getCurrentMaxSizeText() }}</span>
         <span>上传违反中国大陆、香港及美国法律的图片将会直接删除，并封禁设备IP</span>
       </p>
     </div>
@@ -24,6 +25,13 @@ const { toast } = useToast();
 const props = defineProps(['modelValue', 'UploadConfig', 'uploadAPI']);
 const emits = defineEmits(['update:modelValue']);
 const UploadConfig = ref<any>(props.UploadConfig);
+
+// 获取当前最大文件大小文本
+const getCurrentMaxSizeText = () => {
+  const currentMaxSize = typeof UploadConfig.value.MaxSize === 'function' ? UploadConfig.value.MaxSize.value : UploadConfig.value.MaxSize;
+  return `单个文件最大 ${currentMaxSize}MB`;
+};
+
 // 文件上传列表变化事件
 const fileListChange = async (v: Event, type: boolean = false) => {
   let targetFileListArr: any = [];
@@ -36,9 +44,18 @@ const fileListChange = async (v: Event, type: boolean = false) => {
   // 处理图片格式
   targetFileListArr = await imgTypeFormat(targetFileListArr);
   const FileListArr: Array<any> = [...props.modelValue, ...Array.from(targetFileListArr || [])];
+  // 获取当前的最大文件大小限制（支持computed值）
+  const currentMaxSize = typeof UploadConfig.value.MaxSize === 'function' ? UploadConfig.value.MaxSize.value : UploadConfig.value.MaxSize;
+  
   // 过滤不符合Size的文件
-  let fileListFilter = FileListArr.filter((i: any) => UploadConfig.value.MaxSize && (i.size <= UploadConfig.value.MaxSize * 1024 * 1024 || i.upload_status == 'success'));
-  if (fileListFilter.length != FileListArr.length) toast({ title: 'Tips', description: `已过滤Size超过 ${UploadConfig.value.MaxSize}MB 的文件` });
+  let fileListFilter = FileListArr.filter((i: any) => currentMaxSize && (i.size <= currentMaxSize * 1024 * 1024 || i.upload_status == 'success'));
+  if (fileListFilter.length != FileListArr.length) {
+    toast({ 
+      title: '文件大小限制', 
+      description: `已过滤超过 ${currentMaxSize}MB 的文件。当前用户最大上传限制为 ${currentMaxSize}MB`,
+      variant: 'destructive'
+    });
+  }
   // 过滤超过数量的文件
   if (UploadConfig.value.Max && fileListFilter.length > UploadConfig.value.Max) {
     toast({ title: 'Tips', description: `已过滤超过最大上传 ${UploadConfig.value.Max}个 的文件` });
