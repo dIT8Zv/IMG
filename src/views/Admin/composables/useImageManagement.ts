@@ -49,6 +49,57 @@ export function useImageManagement() {
     latestUpload: images.value.length === 0 ? null : Math.max(...images.value.map(img => new Date(img.created_at).getTime()))
   }))
 
+  // 获取图片上传者信息
+  const loadImageUploaders = async () => {
+    try {
+      // 为每个图片获取上传者信息
+      const uploaderPromises = images.value.map(async (img) => {
+        try {
+          const response = await fetch(`${ADMIN_URLS.IMAGE_UPLOADERS}/${img.id}/uploaders`, {
+            headers: {
+              'Authorization': `Bearer ${auth.token.value}`,
+              'Content-Type': 'application/json',
+            },
+          })
+
+          if (!response.ok) {
+            console.warn(`Failed to get uploaders for image ${img.id}: ${response.status}`)
+            return { imageId: img.id, uploaders: [] }
+          }
+
+          const data = await response.json()
+          if (data.success) {
+            return { imageId: img.id, uploaders: data.data.uploaders || [] }
+          } else {
+            console.warn(`获取图片 ${img.id} 上传者信息失败:`, data.message)
+            return { imageId: img.id, uploaders: [] }
+          }
+        } catch (error) {
+          console.error(`Failed to load uploaders for image ${img.id}:`, error)
+          return { imageId: img.id, uploaders: [] }
+        }
+      })
+
+      const results = await Promise.all(uploaderPromises)
+      
+      // 创建一个映射，将图片ID映射到上传者信息
+      const uploadersMap = new Map()
+      results.forEach(result => {
+        uploadersMap.set(result.imageId, result.uploaders)
+      })
+
+      // 更新图片数据，添加上传者信息
+      images.value = images.value.map(img => ({
+        ...img,
+        uploaders: uploadersMap.get(img.id) || []
+      }))
+
+      console.log('Frontend received uploaders for', results.length, 'images')
+    } catch (error) {
+      console.error('Failed to load image uploaders:', error)
+    }
+  }
+
   // 方法
   const loadImages = async () => {
     loading.value = true
@@ -79,6 +130,9 @@ export function useImageManagement() {
         }))
 
         console.log('Frontend received images:', images.value)
+        
+        // 加载图片后，获取上传者信息
+        await loadImageUploaders()
       } else {
         throw new Error(data.message || '获取图片列表失败')
       }

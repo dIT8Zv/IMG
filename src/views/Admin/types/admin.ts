@@ -9,6 +9,14 @@ export interface ImageItem {
   mime_type?: string
   url?: string
   upload_ip?: string
+  uploaders?: ImageUploader[] // 上传者信息列表
+}
+
+// 图片上传者信息
+export interface ImageUploader {
+  user_id: number
+  username: string
+  created_at: string
 }
 
 export interface User {

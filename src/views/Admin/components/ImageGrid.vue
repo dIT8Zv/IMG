@@ -34,8 +34,12 @@
         <p class="text-xs text-gray-500">
           {{ formatDate(image.created_at) }}
         </p>
-        <p class="text-xs text-gray-500">
-          IP: {{ image.upload_ip || '未知' }}
+        <p class="text-xs text-gray-500 flex items-center">
+          <span class="flex-shrink-0">IP: </span>
+          <span 
+            class="truncate ml-1" 
+            :title="image.upload_ip || '未知'"
+          >{{ image.upload_ip || '未知' }}</span>
         </p>
       </div>
     </div>

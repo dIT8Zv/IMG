@@ -22,30 +22,62 @@
         <!-- 文件信息 -->
         <div class="flex-1 min-w-0">
           <!-- 文件名和格式 -->
-          <div class="flex items-center gap-3 mb-1">
+          <div class="flex items-center gap-3 mb-2">
             <h3 class="text-sm font-medium text-gray-900 truncate" :title="image.filename">
               {{ image.filename }}
             </h3>
             <span class="px-2 py-0.5 bg-blue-100 text-blue-800 text-xs rounded">
               {{ image.mime_type?.split('/')[1]?.toUpperCase() || 'IMG' }}
             </span>
+            <span class="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded" :title="`ID: ${image.id}`">
+              <span class="sm:inline hidden">ID: </span>{{ image.id }}
+            </span>
           </div>
 
           <!-- 基本信息 -->
-          <div class="flex items-center gap-4 text-xs text-gray-500">
-            <span>{{ formatFileSize(image.file_size) }}</span>
-            <span>{{ formatDate(image.created_at) }}</span>
-            <span>ID: {{ image.id }}</span>
-            <span 
-              class="group relative cursor-help"
-              :title="image.upload_ip || '未知'"
+          <div class="flex items-center text-xs text-gray-500 mb-2 min-w-0 overflow-hidden">
+            <!-- 固定显示的信息 -->
+            <div class="flex items-center gap-4 flex-shrink-0">
+              <span>{{ formatFileSize(image.file_size) }}</span>
+              <span class="hidden md:inline">{{ formatDate(image.created_at) }}</span>
+            </div>
+            
+            <!-- 可变显示的IP信息 -->
+            <div class="flex items-center ml-4 min-w-0 flex-1">
+              <span 
+                class="group relative cursor-help flex items-center gap-1 min-w-0"
+                :title="`IP: ${image.upload_ip || '未知'}`"
+              >
+                <span class="flex-shrink-0">IP:</span>
+                <span class="truncate">{{ image.upload_ip || '未知' }}</span>
+                <!-- 悬停显示完整IP -->
+                <div class="absolute bottom-full left-0 mb-1 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10 pointer-events-none">
+                  {{ image.upload_ip || '未知' }}
+                </div>
+              </span>
+            </div>
+            
+            <!-- 在小屏幕上显示的简化信息 -->
+            <div class="md:hidden flex items-center gap-2 ml-2 flex-shrink-0">
+              <span class="text-gray-400" :title="`创建时间: ${formatDate(image.created_at)}`">{{ formatDate(image.created_at).split(' ')[0] }}</span>
+            </div>
+          </div>
+
+          <!-- 上传者信息 -->
+          <div v-if="image.uploaders && image.uploaders.length > 0" class="flex flex-wrap items-center gap-2">
+            <span class="text-xs text-gray-600 font-medium">上传者:</span>
+            <span
+              v-for="uploader in image.uploaders"
+              :key="uploader.user_id"
+              class="text-xs text-gray-700"
+              :title="`用户ID: ${uploader.user_id}, 上传时间: ${formatDate(uploader.created_at)}`"
             >
-              IP: {{ truncateIP(image.upload_ip || '未知') }}
-              <!-- 悬停显示完整IP -->
-              <div class="absolute bottom-full left-0 mb-1 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10 pointer-events-none">
-                {{ image.upload_ip || '未知' }}
-              </div>
+              <span class="font-medium">{{ uploader.username }}</span>
+              <span class="text-gray-500">({{ uploader.user_id }})</span>
             </span>
+          </div>
+          <div v-else>
+            <span class="text-xs text-gray-400">上传者: 未知</span>
           </div>
         </div>
 
@@ -112,33 +144,55 @@
           <!-- 文件信息 -->
           <div class="flex-1 min-w-0">
             <!-- 文件名和格式 -->
-            <div class="flex items-start justify-between mb-3">
-              <h3 class="text-sm font-medium text-gray-900 truncate pr-3 leading-relaxed" :title="image.filename">
+            <div class="flex items-start gap-2 mb-3 flex-wrap">
+              <h3 class="text-sm font-medium text-gray-900 truncate flex-1 min-w-0" :title="image.filename">
                 {{ image.filename }}
               </h3>
-              <span class="px-2.5 py-1 bg-blue-100 text-blue-800 text-xs rounded flex-shrink-0">
-                {{ image.mime_type?.split('/')[1]?.toUpperCase() || 'IMG' }}
-              </span>
+              <div class="flex items-center gap-2 flex-shrink-0">
+                <span class="px-2 py-0.5 bg-blue-100 text-blue-800 text-xs rounded">
+                  {{ image.mime_type?.split('/')[1]?.toUpperCase() || 'IMG' }}
+                </span>
+                <span class="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded" :title="`ID: ${image.id}`">
+                  <span class="min-[400px]:inline hidden">ID: </span>{{ image.id }}
+                </span>
+              </div>
             </div>
 
             <!-- 基本信息 - 分行显示 -->
             <div class="space-y-1.5 mb-3">
               <div class="flex items-center gap-4 text-xs text-gray-500">
                 <span>{{ formatFileSize(image.file_size) }}</span>
-                <span>{{ formatDate(image.created_at) }}</span>
+                <span>{{ formatDate(image.created_at).split(' ')[0] }}</span>
               </div>
-              <div class="flex items-center gap-4 text-xs text-gray-500">
-                <span>ID: {{ image.id }}</span>
+              <div class="flex items-center text-xs text-gray-500 min-w-0 overflow-hidden">
                 <span 
-                  class="group relative cursor-help"
-                  :title="image.upload_ip || '未知'"
+                  class="group relative cursor-help flex items-center gap-1 min-w-0 flex-1"
+                  :title="`IP: ${image.upload_ip || '未知'}`"
                 >
-                  IP: {{ truncateIP(image.upload_ip || '未知') }}
+                  <span class="flex-shrink-0">IP:</span>
+                  <span class="truncate">{{ image.upload_ip || '未知' }}</span>
                   <!-- 悬停显示完整IP -->
                   <div class="absolute bottom-full left-0 mb-1 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10 pointer-events-none">
                     {{ image.upload_ip || '未知' }}
                   </div>
                 </span>
+              </div>
+              
+              <!-- 移动端上传者信息 -->
+               <div v-if="image.uploaders && image.uploaders.length > 0" class="flex flex-wrap items-center gap-2">
+                 <span class="text-xs text-gray-600 font-medium">上传者:</span>
+                 <span
+                   v-for="uploader in image.uploaders"
+                   :key="uploader.user_id"
+                   class="text-xs text-gray-700"
+                   :title="`用户ID: ${uploader.user_id}, 上传时间: ${formatDate(uploader.created_at)}`"
+                 >
+                   <span class="font-medium">{{ uploader.username }}</span>
+                   <span class="text-gray-500">({{ uploader.user_id }})</span>
+                 </span>
+               </div>
+              <div v-else>
+                <span class="text-xs text-gray-400">上传者: 未知</span>
               </div>
             </div>
 

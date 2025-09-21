@@ -74,6 +74,23 @@
                 </button>
               </div>
             </div>
+            <div class="col-span-2">
+              <span class="font-medium text-gray-700">上传者:</span>
+              <div v-if="image.uploaders && image.uploaders.length > 0" class="flex flex-wrap items-center gap-2 mt-1">
+                <span
+                  v-for="uploader in image.uploaders"
+                  :key="uploader.user_id"
+                  class="text-sm text-gray-700"
+                  :title="`用户ID: ${uploader.user_id}, 上传时间: ${formatDate(uploader.created_at)}`"
+                >
+                  <span class="font-medium">{{ uploader.username }}</span>
+                  <span class="text-gray-500">({{ uploader.user_id }})</span>
+                </span>
+              </div>
+              <div v-else class="mt-1">
+                <span class="text-sm text-gray-400">上传者: 未知</span>
+              </div>
+            </div>
           </div>
 
           <div class="pt-4 border-t">
