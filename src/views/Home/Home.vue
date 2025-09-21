@@ -38,7 +38,8 @@
 
 <script setup lang="ts">
 import vh from 'vh-plugin';
-import { ref, watch, computed } from 'vue';
+import { ref, watch, computed, onMounted } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import { formatURL } from '@/utils/index';
 import { Button } from '@/components/ui/button';
 import Upload from '@/components/Upload/Upload.vue';
@@ -48,8 +49,11 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { API_CONFIG } from '@/config/api';
 import { useAuth } from '@/composables/useAuth';
 
+const route = useRoute();
+const router = useRouter();
+
 // 认证相关
-const { isLoggedIn, user } = useAuth();
+const { isLoggedIn, user, openAuthModal } = useAuth();
 
 // IPFS节点 - 使用统一的API配置
 const nodeHost = ref<string>(API_CONFIG.BASE_URL);
@@ -93,6 +97,20 @@ watch(fileList, (newVal) => {
         }),
     ),
   );
+});
+
+// 组件挂载时检查URL参数
+onMounted(() => {
+  // 检查是否有action参数
+  const action = route.query.action;
+  if (action === 'forgot-password') {
+    // 清除URL参数
+    router.replace({ path: '/', query: {} });
+    // 延迟一下再打开模态框，确保页面已经渲染完成
+    setTimeout(() => {
+      openAuthModal('forgot-password');
+    }, 100);
+  }
 });
 </script>
 

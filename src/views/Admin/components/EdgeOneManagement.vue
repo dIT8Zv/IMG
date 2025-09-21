@@ -66,17 +66,44 @@
               {{ edgeoneStatus.enabled ? 'EdgeOne 服务已启用' : 'EdgeOne 服务未启用' }}
             </h4>
             <p class="text-sm" :class="edgeoneStatus.enabled ? 'text-green-600' : 'text-gray-600'">
-              {{ edgeoneStatus.enabled ? '缓存清理功能可正常使用' : '请检查服务配置或联系管理员' }}
+              {{ edgeoneStatus.enabled ? '' : '请检查服务配置或联系管理员' }}
             </p>
           </div>
         </div>
       </div>
 
-      <!-- 缓存清理表单 -->
+      <!-- 缓存管理表单 -->
       <div v-if="edgeoneStatus.enabled">
-        <h4 class="text-sm font-medium text-gray-900 mb-4">缓存清理</h4>
+        <!-- 标签页 -->
+        <div class="border-b border-gray-200 mb-4">
+          <nav class="-mb-px flex space-x-8">
+            <button
+              @click="activeTab = 'purge'"
+              :class="[
+                'py-2 px-1 border-b-2 font-medium text-sm',
+                activeTab === 'purge'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              ]"
+            >
+              缓存清理
+            </button>
+            <button
+              @click="activeTab = 'prefetch'"
+              :class="[
+                'py-2 px-1 border-b-2 font-medium text-sm',
+                activeTab === 'prefetch'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              ]"
+            >
+              缓存预热
+            </button>
+          </nav>
+        </div>
         
-        <div class="space-y-4">
+        <!-- 缓存清理表单 -->
+        <div v-if="activeTab === 'purge'" class="space-y-4">
           <!-- URL输入 -->
           <div>
             <label for="cache-urls" class="block text-sm font-medium text-gray-700 mb-2">
@@ -148,6 +175,80 @@
             </button>
           </div>
         </div>
+
+        <!-- 缓存预热表单 -->
+        <div v-if="activeTab === 'prefetch'" class="space-y-4">
+          <!-- URL输入 -->
+          <div>
+            <label for="prefetch-urls" class="block text-sm font-medium text-gray-700 mb-2">
+              要预热的URL（每行一个）
+            </label>
+            <textarea
+              id="prefetch-urls"
+              v-model="prefetchUrlsInput"
+              rows="4"
+              class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              placeholder="https://api-img.liuliyue.cn/v2/example1.jpg&#10;https://api-img.liuliyue.cn/v2/example2.jpg"
+            ></textarea>
+            <p class="mt-1 text-xs text-gray-500">
+              支持批量预热，每行输入一个完整的图片URL。预热会将资源主动加载到EdgeOne边缘节点。
+            </p>
+          </div>
+
+          <!-- 快速选择 -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              快速选择
+            </label>
+            <div class="flex flex-wrap gap-2">
+              <button
+                @click="openPrefetchImageSelector"
+                class="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                选择图片 ({{ currentPrefetchSelectedImages.length }})
+              </button>
+              <button
+                @click="addSelectedPrefetchImageUrls"
+                :disabled="props.selectedImages.length === 0"
+                class="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+              >
+                添加已选图片 ({{ props.selectedImages.length }})
+              </button>
+              <button
+                @click="clearPrefetchUrls"
+                class="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                清空
+              </button>
+            </div>
+          </div>
+
+          <!-- 操作按钮 -->
+          <div class="flex items-center justify-between pt-4 border-t border-gray-200">
+            <div class="text-sm text-gray-500">
+              {{ prefetchUrlList.length }} 个URL待预热
+            </div>
+            <button
+              @click="prefetchCache"
+              :disabled="prefetchUrlList.length === 0 || prefetchLoading"
+              class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
+            >
+              <svg 
+                v-if="prefetchLoading"
+                class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" 
+                fill="none" 
+                viewBox="0 0 24 24"
+              >
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              {{ prefetchLoading ? '预热中...' : '预热缓存' }}
+            </button>
+          </div>
+        </div>
       </div>
 
       <!-- 未启用时的提示 -->
@@ -180,7 +281,7 @@
                 ]"
               ></div>
               <span class="text-gray-600">
-                清理了 {{ operation.urlCount }} 个URL
+                {{ operation.message?.includes('预热') ? '预热了' : '清理了' }} {{ operation.urlCount }} 个URL
               </span>
             </div>
             <span class="text-gray-400">
@@ -198,6 +299,14 @@
     :initial-selected-images="currentSelectedImages"
     @close="closeImageSelector"
     @confirm="handleImageSelection"
+  />
+  
+  <!-- 预热图片选择弹窗 -->
+  <ImageSelectorModal
+    :is-open="showPrefetchImageSelector"
+    :initial-selected-images="currentPrefetchSelectedImages"
+    @close="closePrefetchImageSelector"
+    @confirm="handlePrefetchImageSelection"
   />
 </template>
 
@@ -222,19 +331,32 @@ const {
   edgeoneStatus,
   statusLoading,
   purgeLoading,
+  prefetchLoading,
   operationHistory,
   refreshStatus,
-  purgeCache: performPurgeCache
+  purgeCache: performPurgeCache,
+  prefetchCache: performPrefetchCache
 } = useEdgeOneManagement()
 
 // 本地状态
+const activeTab = ref('purge')
 const urlsInput = ref('')
+const prefetchUrlsInput = ref('')
 const showImageSelector = ref(false)
+const showPrefetchImageSelector = ref(false)
 const currentSelectedImages = ref<ImageItem[]>([])
+const currentPrefetchSelectedImages = ref<ImageItem[]>([])
 
 // 计算属性
 const urlList = computed(() => {
   return urlsInput.value
+    .split('\n')
+    .map(url => url.trim())
+    .filter(url => url.length > 0)
+})
+
+const prefetchUrlList = computed(() => {
+  return prefetchUrlsInput.value
     .split('\n')
     .map(url => url.trim())
     .filter(url => url.length > 0)
@@ -293,6 +415,62 @@ const purgeCache = async () => {
     urlsInput.value = ''
   } catch (error) {
     console.error('缓存清理失败:', error)
+  }
+}
+
+// 预热相关方法
+const addSelectedPrefetchImageUrls = () => {
+  const baseUrl = 'https://api-img.liuliyue.cn/v2/'
+  const selectedUrls = props.selectedImages.map(image => `${baseUrl}${image.filename}`)
+  
+  const existingUrls = prefetchUrlList.value
+  const newUrls = selectedUrls.filter(url => !existingUrls.includes(url))
+  
+  if (newUrls.length > 0) {
+    const currentInput = prefetchUrlsInput.value.trim()
+    prefetchUrlsInput.value = currentInput ? `${currentInput}\n${newUrls.join('\n')}` : newUrls.join('\n')
+  }
+}
+
+const clearPrefetchUrls = () => {
+  prefetchUrlsInput.value = ''
+}
+
+const openPrefetchImageSelector = () => {
+  showPrefetchImageSelector.value = true
+}
+
+const closePrefetchImageSelector = () => {
+  showPrefetchImageSelector.value = false
+}
+
+const handlePrefetchImageSelection = (selectedImages: ImageItem[]) => {
+  currentPrefetchSelectedImages.value = selectedImages
+  
+  // 自动添加选中的图片URL到输入框
+  const baseUrl = 'https://api-img.liuliyue.cn/v2/'
+  const selectedUrls = selectedImages.map(image => `${baseUrl}${image.filename}`)
+  
+  const existingUrls = prefetchUrlList.value
+  const newUrls = selectedUrls.filter(url => !existingUrls.includes(url))
+  
+  if (newUrls.length > 0) {
+    const currentInput = prefetchUrlsInput.value.trim()
+    prefetchUrlsInput.value = currentInput ? `${currentInput}\n${newUrls.join('\n')}` : newUrls.join('\n')
+  }
+  
+  closePrefetchImageSelector()
+}
+
+const prefetchCache = async () => {
+  if (prefetchUrlList.value.length === 0) return
+  
+  try {
+    await performPrefetchCache(prefetchUrlList.value)
+    // 预热成功后清空输入
+    prefetchUrlsInput.value = ''
+  } catch (error) {
+    console.error('缓存预热失败:', error)
   }
 }
 

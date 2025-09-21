@@ -1,7 +1,9 @@
 // API配置文件 - 统一管理所有API URL
+export const API_BASE_URL = 'https://api-img.liuliyue.cn'
+
 export const API_CONFIG = {
   // 基础URL - 原始后端地址
-  BASE_URL: 'https://api-img.liuliyue.cn',
+  BASE_URL: API_BASE_URL,
 
   // 认证相关API
   AUTH: {
@@ -23,6 +25,7 @@ export const API_CONFIG = {
     IMAGE_UPLOADERS: '/api/images',
     EDGEONE_STATUS: '/admin/edgeone/status',
     EDGEONE_PURGE: '/admin/edgeone/purge',
+    EDGEONE_PREFETCH: '/admin/edgeone/prefetch',
   }
 } as const
 
@@ -45,4 +48,5 @@ export const ADMIN_URLS = {
   IMAGE_UPLOADERS: getApiUrl(API_CONFIG.ADMIN.IMAGE_UPLOADERS),
   EDGEONE_STATUS: getApiUrl(API_CONFIG.ADMIN.EDGEONE_STATUS),
   EDGEONE_PURGE: getApiUrl(API_CONFIG.ADMIN.EDGEONE_PURGE),
+  EDGEONE_PREFETCH: getApiUrl(API_CONFIG.ADMIN.EDGEONE_PREFETCH),
 } as const

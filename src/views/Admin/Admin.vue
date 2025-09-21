@@ -42,6 +42,17 @@
           >
             IP封禁管理
           </button>
+          <button
+            @click="activeTab = 'email'"
+            :class="[
+              activeTab === 'email'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
+              'whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm'
+            ]"
+          >
+            邮件服务
+          </button>
         </nav>
       </div>
 
@@ -113,6 +124,11 @@
       <div v-if="activeTab === 'ipban' && canManageIPBans">
         <IPBanManagement />
       </div>
+
+      <!-- 邮件服务管理内容 -->
+      <div v-if="activeTab === 'email'">
+        <EmailManagement />
+      </div>
     </main>
 
     <!-- Image Detail Modal -->
@@ -148,6 +164,7 @@ import ImageModal from './components/ImageModal.vue'
 import FullscreenModal from './components/FullscreenModal.vue'
 import EdgeOneManagement from './components/EdgeOneManagement.vue'
 import IPBanManagement from './components/IPBanManagement.vue'
+import EmailManagement from './components/EmailManagement.vue'
 
 // Composables 导入
 import { useImageManagement } from './composables/useImageManagement'
@@ -191,7 +208,7 @@ const {
 } = useAdminPermissions()
 
 // 标签页状态
-const activeTab = ref<'images' | 'edgeone' | 'ipban'>('images')
+const activeTab = ref<'images' | 'edgeone' | 'ipban' | 'email'>('images')
 
 // 选中的图片状态（用于批量操作）
 const selectedImages = ref<any[]>([])

@@ -17,7 +17,7 @@ const route = useRoute();
 
 // 检查是否为全页面布局（不显示Header和Footer的页面）
 const isFullPageLayout = computed(() => {
-  return route.name === 'AccessDenied' || route.name === 'NotFound' || route.name === 'NotFoundCatch';
+  return route.name === 'AccessDenied' || route.name === 'NotFound' || route.name === 'NotFoundCatch' || route.name === 'ResetPassword';
 });
 </script>
 

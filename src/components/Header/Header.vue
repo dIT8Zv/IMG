@@ -34,7 +34,7 @@
         <!-- 未登录状态 -->
         <div v-else class="flex items-center gap-2">
           <button
-            @click="openAuthModal"
+            @click="openAuthModal('login')"
             class="px-4 py-1.5 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors"
           >
             登录

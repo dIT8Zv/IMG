@@ -24,6 +24,7 @@ let globalToken = ref<string | null>(null)
 let globalUser = ref<User | null>(null)
 let globalIsInitialized = ref(false)
 let globalIsAuthModalOpen = ref(false)
+let globalAuthModalMode = ref<'login' | 'register' | 'forgot-password'>('login')
 
 // 初始化token
 if (typeof window !== 'undefined') {
@@ -83,14 +84,19 @@ export function useAuth() {
     }
   }
 
-  const register = async (username: string, email: string, password: string): Promise<AuthResponse> => {
+  const register = async (username: string, email: string, password: string, verificationCode?: string): Promise<AuthResponse> => {
     try {
+      const requestBody: any = { username, email, password }
+      if (verificationCode) {
+        requestBody.verification_code = verificationCode
+      }
+
       const response = await fetch(AUTH_URLS.REGISTER, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ username, email, password }),
+        body: JSON.stringify(requestBody),
       })
 
       const data: AuthResponse = await response.json()
@@ -181,12 +187,14 @@ export function useAuth() {
   }
 
   // 模态框控制函数
-  const openAuthModal = () => {
+  const openAuthModal = (mode: 'login' | 'register' | 'forgot-password' = 'login') => {
+    globalAuthModalMode.value = mode
     globalIsAuthModalOpen.value = true
   }
 
   const closeAuthModal = () => {
     globalIsAuthModalOpen.value = false
+    globalAuthModalMode.value = 'login' // 重置为默认模式
   }
 
   return {
@@ -195,6 +203,7 @@ export function useAuth() {
     isLoggedIn: globalIsLoggedIn,
     isInitialized: globalIsInitialized,
     isAuthModalOpen: globalIsAuthModalOpen,
+    authModalMode: globalAuthModalMode,
     login,
     register,
     logout,
