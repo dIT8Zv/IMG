@@ -91,6 +91,46 @@
           border-left: solid 1px #e5e6eb;
         }
       }
+
+      // 错误状态样式
+      .error-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        .retry-btn {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 32px;
+          height: 32px;
+          border: 1px solid #ff4d4f;
+          border-radius: 4px;
+          background: #fff;
+          color: #ff4d4f;
+          cursor: pointer;
+          transition: all 0.2s;
+
+          &:hover {
+            background: #ff4d4f;
+            color: #fff;
+          }
+
+          svg {
+            width: 16px;
+            height: 16px;
+          }
+        }
+
+        .error-message {
+          font-size: 12px;
+          color: #ff4d4f;
+          max-width: 200px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+      }
     }
   }
 }

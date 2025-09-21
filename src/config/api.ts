@@ -1,7 +1,7 @@
 // API配置文件 - 统一管理所有API URL
 export const API_CONFIG = {
-  // 基础URL
-  BASE_URL: 'https://api-img.liuliyue.cn',
+  // 基础URL - 原始后端地址
+  BASE_URL: 'http://localhost:3001',
 
   // 认证相关API
   AUTH: {
@@ -20,6 +20,8 @@ export const API_CONFIG = {
   ADMIN: {
     IMAGES: '/admin/images',
     DELETE_IMAGE: '/admin/images',
+    EDGEONE_STATUS: '/admin/edgeone/status',
+    EDGEONE_PURGE: '/admin/edgeone/purge',
   }
 } as const
 
@@ -39,4 +41,6 @@ export const AUTH_URLS = {
 export const ADMIN_URLS = {
   IMAGES: getApiUrl(API_CONFIG.ADMIN.IMAGES),
   DELETE_IMAGE: (filename: string) => getApiUrl(`${API_CONFIG.ADMIN.DELETE_IMAGE}/${filename}`),
+  EDGEONE_STATUS: getApiUrl(API_CONFIG.ADMIN.EDGEONE_STATUS),
+  EDGEONE_PURGE: getApiUrl(API_CONFIG.ADMIN.EDGEONE_PURGE),
 } as const

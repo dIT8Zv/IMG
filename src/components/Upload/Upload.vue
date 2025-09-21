@@ -20,7 +20,9 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useToast } from '@/components/ui/toast/use-toast';
+import { useAuth } from '@/composables/useAuth';
 const { toast } = useToast();
+const { token } = useAuth();
 // 参数
 const props = defineProps(['modelValue', 'UploadConfig', 'uploadAPI']);
 const emits = defineEmits(['update:modelValue']);
@@ -112,18 +114,57 @@ const fileUpload = async (FileListArr: Array<any>) => {
     emits('update:modelValue', [...FileListArr]);
     // 同步上传状态======
     try {
+      // 准备请求头
+      const headers: Record<string, string> = {};
+      if (token.value) {
+        headers['Authorization'] = `Bearer ${token.value}`;
+      }
+      
       // 发送请求
       const res = await fetch(props.uploadAPI, {
         method: 'POST',
+        headers,
         body: formData,
       });
+      
+      // 检查HTTP状态码
+      if (!res.ok) {
+        let errorMessage = `上传失败 (${res.status})`;
+        try {
+          const errorData = await res.json();
+          if (errorData.error) {
+            errorMessage = errorData.error;
+          } else if (errorData.message) {
+            errorMessage = errorData.message;
+          }
+          // 特殊处理IP封禁错误
+          if (res.status === 403 && errorData.reason) {
+            errorMessage = `IP地址已被封禁: ${errorData.reason}`;
+          }
+        } catch (jsonError) {
+          // 如果无法解析JSON，使用默认错误消息
+          errorMessage = `上传失败: ${res.statusText || '未知错误'}`;
+        }
+        throw new Error(errorMessage);
+      }
+      
       const result = await res.json();
       i.upload_result = result;
       i.upload_result._vh_filename = i.name;
       i.upload_status = 'success';
     } catch (error) {
       i.upload_status = 'error';
-      i.upload_result = error;
+      i.upload_result = { 
+        error: error instanceof Error ? error.message : '上传失败',
+        success: false 
+      };
+      
+      // 显示错误提示
+      toast({ 
+        title: '上传失败', 
+        description: error instanceof Error ? error.message : '上传过程中发生未知错误',
+        variant: 'destructive'
+      });
     } finally {
       // 同步上传状态======
       i.upload_progress = 100;

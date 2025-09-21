@@ -4,7 +4,6 @@
       <div class="flex justify-between items-center h-16">
         <div class="flex items-center">
           <h1 class="text-xl font-semibold text-gray-900">后台管理</h1>
-          <span class="ml-4 text-sm text-gray-500">图片管理</span>
         </div>
         <div class="flex items-center gap-4">
           <button

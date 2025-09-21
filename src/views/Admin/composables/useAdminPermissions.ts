@@ -63,9 +63,28 @@ export function useAdminPermissions() {
     return user.permission_level < 2
   })
 
+  // 权限控制：检查用户是否有IP封禁管理权限（权限级别为0）
+  const canManageIPBans = computed(() => {
+    const user = currentUser.value
+    const hasUser = !!user
+    const permissionLevel = user?.permission_level
+    const canManage = hasUser && permissionLevel === 0
+    
+    console.log('Admin canManageIPBans check:', {
+      hasUser,
+      permissionLevel,
+      canManage,
+      user
+    })
+    
+    if (!user) return false
+    return user.permission_level === 0
+  })
+
   return {
     isReallyLoggedIn,
     currentUser,
-    canDeleteImages
+    canDeleteImages,
+    canManageIPBans
   }
 }

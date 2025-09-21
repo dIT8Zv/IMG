@@ -62,12 +62,22 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                   </svg>
                 </button>
+                <button
+                  v-if="canManageIPBans && image.upload_ip && image.upload_ip !== '未知'"
+                  @click="showBanConfirmDialog"
+                  class="flex-shrink-0 p-1 text-red-500 hover:text-red-700 transition-colors"
+                  title="封禁此IP地址"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                  </svg>
+                </button>
               </div>
             </div>
           </div>
 
           <div class="pt-4 border-t">
-            <div class="flex gap-2">
+            <div class="flex gap-2 flex-wrap">
               <button
                 @click="$emit('copyUrl', image)"
                 class="px-4 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
@@ -81,20 +91,47 @@
               >
                 删除图片
               </button>
+              <button
+                v-if="canManageIPBans && image.upload_ip && image.upload_ip !== '未知'"
+                @click="showBanConfirmDialog"
+                class="px-4 py-2 bg-orange-600 text-white text-sm rounded hover:bg-orange-700 flex items-center"
+              >
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+                封禁IP
+              </button>
             </div>
           </div>
         </div>
       </div>
     </div>
   </div>
+
+  <!-- 封禁IP确认对话框 -->
+  <ConfirmDialog
+    :is-open="showBanDialog"
+    title="确认封禁IP地址"
+    :message="`您确定要封禁IP地址吗？此操作将阻止该IP地址访问系统。`"
+    :details="image?.upload_ip"
+    confirm-text="确认封禁"
+    @confirm="handleBanIP"
+    @cancel="showBanDialog = false"
+    ref="banDialogRef"
+  />
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
 import type { ImageItem } from '../types/admin'
 import { API_CONFIG } from '@/config/api'
+import { useAuth } from '@/composables/useAuth'
+import { useAdminPermissions } from '../composables/useAdminPermissions'
+import { useIPBanManagement } from '../composables/useIPBanManagement'
+import ConfirmDialog from '@/components/ConfirmDialog.vue'
 
 // 定义 props
-defineProps<{
+const props = defineProps<{
   image: ImageItem | null
   canDelete: boolean
 }>()
@@ -106,6 +143,14 @@ defineEmits<{
   deleteImage: [image: ImageItem]
   openFullscreen: [image: ImageItem]
 }>()
+
+const { user } = useAuth()
+const { canManageIPBans } = useAdminPermissions()
+const { banIP, banForm } = useIPBanManagement()
+
+// 封禁IP对话框状态
+const showBanDialog = ref(false)
+const banDialogRef = ref<{ setLoading: (value: boolean) => void } | null>(null)
 
 // 工具函数
 const getImageUrl = (filename: string) => {
@@ -143,6 +188,46 @@ const copyToClipboard = async (text: string) => {
       console.error('降级复制也失败:', fallbackErr)
     }
     document.body.removeChild(textArea)
+  }
+}
+
+// 显示封禁确认对话框
+const showBanConfirmDialog = () => {
+  showBanDialog.value = true
+}
+
+// 处理封禁IP
+const handleBanIP = async () => {
+  if (!props.image?.upload_ip) return
+  
+  try {
+    // 设置对话框为加载状态
+    if (banDialogRef.value) {
+      banDialogRef.value.setLoading(true)
+    }
+    
+    // 设置banForm数据
+    banForm.value.ip = props.image.upload_ip
+    banForm.value.reason = '违规内容'
+    banForm.value.ban_type = 'permanent'
+    
+    const success = await banIP()
+    
+    if (success) {
+      // 关闭对话框
+      showBanDialog.value = false
+      console.log('IP封禁成功')
+    } else {
+      console.error('封禁IP失败')
+    }
+    
+  } catch (error) {
+    console.error('封禁IP失败:', error)
+  } finally {
+    // 取消加载状态
+    if (banDialogRef.value) {
+      banDialogRef.value.setLoading(false)
+    }
   }
 }
 </script>

@@ -32,7 +32,7 @@
     </div>
 
     <!-- Results -->
-    <ResList v-model="fileList" :nodeHost="nodeHost" />
+    <ResList v-model="fileList" :nodeHost="nodeHost" :uploadAPI="uploadAPI" />
   </section>
 </template>
 
