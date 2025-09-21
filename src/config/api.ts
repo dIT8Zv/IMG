@@ -1,7 +1,7 @@
 // API配置文件 - 统一管理所有API URL
 export const API_CONFIG = {
   // 基础URL - 原始后端地址
-  BASE_URL: 'http://localhost:3001',
+  BASE_URL: 'https://api-img.liuliyue.cn',
 
   // 认证相关API
   AUTH: {
