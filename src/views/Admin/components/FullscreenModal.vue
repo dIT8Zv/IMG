@@ -1,18 +1,19 @@
 <template>
   <div
     v-if="image"
-    class="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center p-4 z-[60]"
+    class="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-[60]"
     @click="$emit('close')"
   >
-    <div class="relative max-w-full max-h-full">
+    <div class="relative w-full h-full flex items-center justify-center p-4">
       <img
         :src="getImageUrl(image.filename)"
         :alt="image.filename"
         class="max-w-full max-h-full object-contain"
+        style="max-width: calc(100vw - 2rem); max-height: calc(100vh - 2rem);"
       />
       <button
         @click="$emit('close')"
-        class="absolute top-4 right-4 text-white hover:text-gray-300 text-2xl"
+        class="absolute top-4 right-4 text-white hover:text-gray-300 text-2xl z-10"
       >
         <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
