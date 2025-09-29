@@ -7,53 +7,66 @@
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <!-- Tab Navigation -->
       <div class="mb-6">
-        <nav class="flex space-x-8" aria-label="Tabs">
-          <button
-            @click="activeTab = 'images'"
-            :class="[
-              activeTab === 'images'
-                ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
-              'whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm'
-            ]"
-          >
-            图片管理
-          </button>
-          <button
-            @click="activeTab = 'edgeone'"
-            :class="[
-              activeTab === 'edgeone'
-                ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
-              'whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm'
-            ]"
-          >
-            缓存管理
-          </button>
-          <button
-            v-if="canManageIPBans"
-            @click="activeTab = 'ipban'"
-            :class="[
-              activeTab === 'ipban'
-                ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
-              'whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm'
-            ]"
-          >
-            IP封禁管理
-          </button>
-          <button
-            @click="activeTab = 'email'"
-            :class="[
-              activeTab === 'email'
-                ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
-              'whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm'
-            ]"
-          >
-            邮件服务
-          </button>
-        </nav>
+        <!-- 移动端优化的Tab导航容器 -->
+        <div class="relative">
+          <!-- 水平滚动容器 -->
+          <div class="overflow-x-auto scrollbar-hide">
+            <nav class="flex space-x-1 sm:space-x-4 lg:space-x-8 min-w-max px-1" aria-label="Tabs">
+              <button
+                @click="activeTab = 'images'"
+                :class="[
+                  activeTab === 'images'
+                    ? 'border-blue-500 text-blue-600 bg-blue-50'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 hover:bg-gray-50',
+                  'whitespace-nowrap py-3 px-3 sm:px-4 lg:px-6 border-b-2 font-medium text-sm sm:text-base rounded-t-lg transition-all duration-200 min-w-0 flex-shrink-0'
+                ]"
+              >
+                <span class="block sm:hidden">图片</span>
+                <span class="hidden sm:block">图片管理</span>
+              </button>
+              <button
+                @click="activeTab = 'edgeone'"
+                :class="[
+                  activeTab === 'edgeone'
+                    ? 'border-blue-500 text-blue-600 bg-blue-50'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 hover:bg-gray-50',
+                  'whitespace-nowrap py-3 px-3 sm:px-4 lg:px-6 border-b-2 font-medium text-sm sm:text-base rounded-t-lg transition-all duration-200 min-w-0 flex-shrink-0'
+                ]"
+              >
+                <span class="block sm:hidden">缓存</span>
+                <span class="hidden sm:block">缓存管理</span>
+              </button>
+              <button
+                v-if="canManageIPBans"
+                @click="activeTab = 'ipban'"
+                :class="[
+                  activeTab === 'ipban'
+                    ? 'border-blue-500 text-blue-600 bg-blue-50'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 hover:bg-gray-50',
+                  'whitespace-nowrap py-3 px-3 sm:px-4 lg:px-6 border-b-2 font-medium text-sm sm:text-base rounded-t-lg transition-all duration-200 min-w-0 flex-shrink-0'
+                ]"
+              >
+                <span class="block sm:hidden">IP管理</span>
+                <span class="hidden sm:block">IP封禁管理</span>
+              </button>
+              <button
+                @click="activeTab = 'email'"
+                :class="[
+                  activeTab === 'email'
+                    ? 'border-blue-500 text-blue-600 bg-blue-50'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 hover:bg-gray-50',
+                  'whitespace-nowrap py-3 px-3 sm:px-4 lg:px-6 border-b-2 font-medium text-sm sm:text-base rounded-t-lg transition-all duration-200 min-w-0 flex-shrink-0'
+                ]"
+              >
+                <span class="block sm:hidden">邮件</span>
+                <span class="hidden sm:block">邮件服务</span>
+              </button>
+            </nav>
+          </div>
+          
+          <!-- 滚动指示器（仅在移动端显示） -->
+          <div class="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white to-transparent pointer-events-none sm:hidden"></div>
+        </div>
       </div>
 
       <!-- 图片管理内容 -->

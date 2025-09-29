@@ -1,40 +1,47 @@
 <template>
   <div class="bg-white rounded-lg shadow-sm border border-gray-200">
     <!-- Header -->
-    <div class="px-6 py-4 border-b border-gray-200">
-      <div class="flex items-center justify-between">
-        <div>
-          <h3 class="text-lg font-medium text-gray-900">EdgeOne 缓存管理</h3>
-          <p class="mt-1 text-sm text-gray-500">管理腾讯云 EdgeOne CDN 缓存清理</p>
+    <div class="px-4 sm:px-6 py-4 border-b border-gray-200">
+      <!-- 移动端优化：垂直堆叠布局 -->
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
+        <!-- 标题部分 -->
+        <div class="flex-1 min-w-0">
+          <h3 class="text-lg sm:text-xl font-medium text-gray-900 truncate">EdgeOne 缓存管理</h3>
+          <p class="mt-1 text-sm text-gray-500 hidden sm:block">管理腾讯云 EdgeOne CDN 缓存清理</p>
+          <p class="mt-1 text-xs text-gray-500 sm:hidden">CDN 缓存管理</p>
         </div>
-        <div class="flex items-center space-x-3">
+        
+        <!-- 控制区域 -->
+        <div class="flex items-center justify-between sm:justify-end space-x-2 sm:space-x-3 flex-shrink-0">
           <!-- 状态指示器 -->
-          <div class="flex items-center space-x-2">
+          <div class="flex items-center space-x-2 bg-gray-50 sm:bg-transparent px-2 py-1 sm:px-0 sm:py-0 rounded-md">
             <div 
               :class="[
-                'w-2 h-2 rounded-full',
+                'w-2.5 h-2.5 sm:w-2 sm:h-2 rounded-full flex-shrink-0',
                 edgeoneStatus.enabled ? 'bg-green-500' : 'bg-gray-400'
               ]"
             ></div>
-            <span class="text-sm text-gray-600">
+            <span class="text-sm text-gray-600 font-medium sm:font-normal">
               {{ edgeoneStatus.enabled ? '已启用' : '未启用' }}
             </span>
           </div>
+          
           <!-- 刷新状态按钮 -->
           <button
             @click="refreshStatus"
             :disabled="statusLoading"
-            class="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+            class="inline-flex items-center px-3 py-2 sm:px-3 sm:py-1.5 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 transition-all duration-200 min-w-0"
           >
             <svg 
-              :class="['w-4 h-4 mr-1.5', statusLoading ? 'animate-spin' : '']" 
+              :class="['w-4 h-4 flex-shrink-0', statusLoading ? 'animate-spin' : '', 'sm:mr-1.5']" 
               fill="none" 
               stroke="currentColor" 
               viewBox="0 0 24 24"
             >
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
-            刷新状态
+            <span class="hidden sm:inline ml-1.5">刷新状态</span>
+            <span class="sm:hidden sr-only">刷新</span>
           </button>
         </div>
       </div>

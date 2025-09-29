@@ -1,18 +1,19 @@
 <template>
-  <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-    <!-- 标签导航和刷新按钮在同一行 -->
-    <div class="flex items-center justify-between mb-6">
-      <nav class="flex space-x-8" aria-label="Tabs">
+  <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
+    <!-- 标签导航和操作按钮 -->
+    <div class="flex items-center justify-between mb-4 sm:mb-6">
+      <nav class="flex space-x-4 sm:space-x-8 overflow-x-auto scrollbar-hide" aria-label="Tabs">
         <button
           @click="switchTab('banned')"
           :class="[
             currentTab === 'banned'
               ? 'border-blue-500 text-blue-600'
               : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
-            'whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm'
+            'whitespace-nowrap py-2 px-1 border-b-2 font-medium text-xs sm:text-sm flex-shrink-0'
           ]"
         >
-          已封禁IP
+          <span class="sm:hidden">已封禁</span>
+          <span class="hidden sm:inline">已封禁IP</span>
         </button>
         <button
           @click="switchTab('unbanned')"
@@ -20,29 +21,31 @@
             currentTab === 'unbanned'
               ? 'border-blue-500 text-blue-600'
               : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
-            'whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm'
+            'whitespace-nowrap py-2 px-1 border-b-2 font-medium text-xs sm:text-sm flex-shrink-0'
           ]"
         >
-          已解封IP
+          <span class="sm:hidden">已解封</span>
+          <span class="hidden sm:inline">已解封IP</span>
         </button>
       </nav>
       
-      <div class="flex items-center space-x-3">
+      <div class="flex items-center space-x-2 sm:space-x-3 ml-4">
         <button
           @click="showBanModal = true"
-          class="inline-flex items-center px-3 py-2 border border-transparent shadow-sm text-sm leading-4 font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+          class="inline-flex items-center px-2 py-1.5 sm:px-3 sm:py-2 border border-transparent shadow-sm text-xs sm:text-sm leading-4 font-medium rounded text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
         >
-          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-12.728 12.728m0-12.728l12.728 12.728M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25z" />
           </svg>
-          封禁IP
+          <span class="sm:hidden">封禁</span>
+          <span class="hidden sm:inline">封禁IP</span>
         </button>
         <button
           @click="handleRefresh"
           :disabled="loading"
-          class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+          class="inline-flex items-center px-2 py-1.5 sm:px-3 sm:py-2 border border-gray-300 shadow-sm text-xs sm:text-sm leading-4 font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
         >
-          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
           </svg>
           刷新
@@ -53,22 +56,22 @@
 
 
     <!-- 统计信息 - 只在已封禁IP选项卡显示 -->
-    <div v-if="currentTab === 'banned' && stats" class="mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
-      <div class="bg-blue-50 p-4 rounded-lg">
-        <div class="text-2xl font-bold text-blue-600">{{ stats.total }}</div>
-        <div class="text-sm text-blue-600">总封禁数</div>
+    <div v-if="currentTab === 'banned' && stats" class="mb-4 sm:mb-6 grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      <div class="bg-blue-50 p-3 sm:p-4 rounded-lg">
+        <div class="text-lg sm:text-2xl font-bold text-blue-600">{{ stats.total }}</div>
+        <div class="text-xs sm:text-sm text-blue-600">总封禁数</div>
       </div>
-      <div class="bg-green-50 p-4 rounded-lg">
-        <div class="text-2xl font-bold text-green-600">{{ stats.active }}</div>
-        <div class="text-sm text-green-600">活跃封禁</div>
+      <div class="bg-green-50 p-3 sm:p-4 rounded-lg">
+        <div class="text-lg sm:text-2xl font-bold text-green-600">{{ stats.active }}</div>
+        <div class="text-xs sm:text-sm text-green-600">活跃封禁</div>
       </div>
-      <div class="bg-yellow-50 p-4 rounded-lg">
-        <div class="text-2xl font-bold text-yellow-600">{{ stats.temporary }}</div>
-        <div class="text-sm text-yellow-600">临时封禁</div>
+      <div class="bg-yellow-50 p-3 sm:p-4 rounded-lg">
+        <div class="text-lg sm:text-2xl font-bold text-yellow-600">{{ stats.temporary }}</div>
+        <div class="text-xs sm:text-sm text-yellow-600">临时封禁</div>
       </div>
-      <div class="bg-red-50 p-4 rounded-lg">
-        <div class="text-2xl font-bold text-red-600">{{ stats.permanent }}</div>
-        <div class="text-sm text-red-600">永久封禁</div>
+      <div class="bg-red-50 p-3 sm:p-4 rounded-lg">
+        <div class="text-lg sm:text-2xl font-bold text-red-600">{{ stats.permanent }}</div>
+        <div class="text-xs sm:text-sm text-red-600">永久封禁</div>
       </div>
     </div>
 
@@ -86,87 +89,95 @@
         <p class="mt-2 text-gray-600">{{ currentTab === 'banned' ? '暂无封禁的IP' : '暂无已解封的IP' }}</p>
       </div>
 
-      <div v-else class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200">
-          <thead class="bg-gray-50">
-            <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                IP地址
-              </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                类型
-              </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                状态
-              </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                封禁时间
-              </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                到期时间
-              </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                原因
-              </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                操作
-              </th>
-            </tr>
-          </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
-            <tr v-for="ip in currentList" :key="ip.id" class="hover:bg-gray-50">
-              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                {{ ip.ip_address }}
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                <span :class="!ip.expires_at ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'" 
-                      class="inline-flex px-2 py-1 text-xs font-semibold rounded-full">
-                  {{ !ip.expires_at ? '永久' : '临时' }}
-                </span>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                <span :class="ip.is_active ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'" 
-                      class="inline-flex px-2 py-1 text-xs font-semibold rounded-full">
-                  {{ ip.is_active ? '活跃' : '已解封' }}
-                </span>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {{ formatDate(ip.created_at) }}
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {{ ip.expires_at ? formatDate(ip.expires_at) : '永不过期' }}
-              </td>
-              <td class="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">
-                {{ ip.reason || '无' }}
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                <button
-                  v-if="currentTab === 'banned' && ip.is_active"
-                  @click="handleUnbanIP(ip.ip_address)"
-                  :disabled="submitting"
-                  class="text-green-600 hover:text-green-900 disabled:opacity-50"
-                >
-                  解封
-                </button>
-                <span v-else-if="currentTab === 'banned'" class="text-gray-400">已过期</span>
-                <button
-                  v-else
-                  @click="handleReBanIP(ip.ip_address)"
-                  :disabled="submitting"
-                  class="text-red-600 hover:text-red-900 disabled:opacity-50"
-                >
-                  封禁IP
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+      <div v-else class="overflow-x-auto -mx-4 sm:mx-0">
+        <div class="inline-block min-w-full align-middle">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  IP地址
+                </th>
+                <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  类型
+                </th>
+                <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  状态
+                </th>
+                <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">
+                  封禁时间
+                </th>
+                <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">
+                  到期时间
+                </th>
+                <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">
+                  原因
+                </th>
+                <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  操作
+                </th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <tr v-for="ip in currentList" :key="ip.id" class="hover:bg-gray-50">
+                <td class="px-3 sm:px-6 py-4 text-xs sm:text-sm font-medium text-gray-900">
+                  <div class="break-all">{{ ip.ip_address }}</div>
+                  <!-- 移动端显示额外信息 -->
+                  <div class="sm:hidden mt-1 space-y-1">
+                    <div class="text-xs text-gray-500">{{ formatDate(ip.created_at) }}</div>
+                    <div v-if="ip.reason" class="text-xs text-gray-500 truncate">{{ ip.reason }}</div>
+                  </div>
+                </td>
+                <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">
+                  <span :class="!ip.expires_at ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'" 
+                        class="inline-flex px-1.5 py-0.5 text-xs font-semibold rounded-full">
+                    {{ !ip.expires_at ? '永久' : '临时' }}
+                  </span>
+                </td>
+                <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">
+                  <span :class="ip.is_active ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'" 
+                        class="inline-flex px-1.5 py-0.5 text-xs font-semibold rounded-full">
+                    {{ ip.is_active ? '活跃' : '已解封' }}
+                  </span>
+                </td>
+                <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500 hidden sm:table-cell">
+                  {{ formatDate(ip.created_at) }}
+                </td>
+                <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500 hidden lg:table-cell">
+                  {{ ip.expires_at ? formatDate(ip.expires_at) : '永不过期' }}
+                </td>
+                <td class="px-3 sm:px-6 py-4 text-xs sm:text-sm text-gray-500 max-w-xs truncate hidden md:table-cell">
+                  {{ ip.reason || '无' }}
+                </td>
+                <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm font-medium">
+                  <button
+                    v-if="currentTab === 'banned' && ip.is_active"
+                    @click="handleUnbanIP(ip.ip_address)"
+                    :disabled="submitting"
+                    class="text-green-600 hover:text-green-900 disabled:opacity-50 px-1.5 py-0.5 rounded text-xs sm:text-sm"
+                  >
+                    解封
+                  </button>
+                  <span v-else-if="currentTab === 'banned'" class="text-gray-400 text-xs sm:text-sm">已过期</span>
+                  <button
+                    v-else
+                    @click="handleReBanIP(ip.ip_address)"
+                    :disabled="submitting"
+                    class="text-red-600 hover:text-red-900 disabled:opacity-50 px-1.5 py-0.5 rounded text-xs sm:text-sm"
+                  >
+                    <span class="sm:hidden">封禁</span>
+                    <span class="hidden sm:inline">封禁IP</span>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
 
     <!-- IP封禁弹窗 -->
-    <div v-if="showBanModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" @click="showBanModal = false">
-      <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white" @click.stop>
+    <div v-if="showBanModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 px-4" @click="showBanModal = false">
+      <div class="relative top-10 sm:top-20 mx-auto p-4 sm:p-5 border w-full max-w-md sm:w-96 shadow-lg rounded-md bg-white" @click.stop>
         <div class="mt-3">
           <!-- 弹窗标题 -->
           <div class="flex items-center justify-between mb-4">
