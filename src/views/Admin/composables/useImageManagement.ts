@@ -126,13 +126,14 @@ export function useImageManagement() {
           created_at: img.created_at,
           mime_type: img.mime_type,
           url: img.url,
-          upload_ip: img.upload_ip
+          upload_ip: img.upload_ip,
+          uploaders: img.uploaders || [] // 直接使用后端返回的uploaders数据
         }))
 
-        console.log('Frontend received images:', images.value)
+        console.log('Frontend received images with uploaders:', images.value)
         
-        // 加载图片后，获取上传者信息
-        await loadImageUploaders()
+        // 不再需要单独获取上传者信息，因为后端已经包含了
+        // await loadImageUploaders()
       } else {
         throw new Error(data.message || '获取图片列表失败')
       }

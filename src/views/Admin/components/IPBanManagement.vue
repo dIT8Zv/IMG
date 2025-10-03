@@ -133,7 +133,7 @@
       </div>
 
       <!-- 桌面端表格视图 -->
-      <div v-else class="hidden lg:block overflow-x-auto">
+      <div v-else-if="currentList.length > 0" class="hidden lg:block overflow-x-auto">
         <table class="min-w-full divide-y divide-gray-200">
           <thead class="bg-gray-50">
             <tr>
@@ -211,7 +211,7 @@
       </div>
 
       <!-- 移动端卡片视图 -->
-      <div v-else class="lg:hidden space-y-3">
+      <div v-if="currentList.length > 0" class="lg:hidden space-y-3">
         <div 
           v-for="ip in currentList" 
           :key="ip.id" 
