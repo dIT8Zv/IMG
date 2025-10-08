@@ -217,7 +217,7 @@
 <script setup lang="ts">
 import { ref, reactive, watch } from 'vue'
 import { useAuth } from '@/composables/useAuth'
-import { API_BASE_URL } from '@/config/api'
+import { EMAIL_URLS, AUTH_URLS } from '@/config/api'
 
 const auth = useAuth()
 const { isAuthModalOpen, authModalMode, closeAuthModal, openAuthModal } = auth
@@ -285,7 +285,7 @@ const sendVerificationCode = async () => {
   successMessage.value = ''
 
   try {
-    const response = await fetch('http://localhost:3001/email/send-code', {
+    const response = await fetch(EMAIL_URLS.SEND_CODE, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -360,7 +360,7 @@ const handleSubmit = async () => {
       result = await auth.login(formData.username, formData.password)
     } else {
       // 先验证验证码
-      const verifyResponse = await fetch('http://localhost:3001/email/verify-code', {
+      const verifyResponse = await fetch(EMAIL_URLS.VERIFY_CODE, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -420,7 +420,7 @@ const handleForgotPassword = async () => {
   isLoading.value = true
   
   try {
-    const response = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
+    const response = await fetch(AUTH_URLS.FORGOT_PASSWORD, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

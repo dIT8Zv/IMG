@@ -10,6 +10,13 @@ export const API_CONFIG = {
     LOGIN: '/auth/login',
     REGISTER: '/auth/register',
     USER: '/auth/user',
+    FORGOT_PASSWORD: '/auth/forgot-password',
+  },
+
+  // 邮箱验证相关API
+  EMAIL: {
+    SEND_CODE: '/email/send-code',
+    VERIFY_CODE: '/email/verify-code',
   },
 
   // 图片相关API
@@ -39,6 +46,13 @@ export const AUTH_URLS = {
   LOGIN: getApiUrl(API_CONFIG.AUTH.LOGIN),
   REGISTER: getApiUrl(API_CONFIG.AUTH.REGISTER),
   USER: getApiUrl(API_CONFIG.AUTH.USER),
+  FORGOT_PASSWORD: getApiUrl(API_CONFIG.AUTH.FORGOT_PASSWORD),
+} as const
+
+// 邮箱验证API URLs
+export const EMAIL_URLS = {
+  SEND_CODE: getApiUrl(API_CONFIG.EMAIL.SEND_CODE),
+  VERIFY_CODE: getApiUrl(API_CONFIG.EMAIL.VERIFY_CODE),
 } as const
 
 // 管理员API URLs
