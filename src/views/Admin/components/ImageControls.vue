@@ -87,6 +87,7 @@
               <input
                 :value="searchQuery"
                 @input="$emit('update:search-query', ($event.target as HTMLInputElement).value)"
+                @keyup.enter="$emit('search')"
                 type="text"
                 placeholder="输入图片名称..."
                 class="bg-white border border-gray-300 rounded-lg px-2 sm:px-3 py-1.5 sm:py-2 pl-7 sm:pl-9 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors w-full sm:w-48"
@@ -186,5 +187,6 @@ defineEmits<{
   'update:sort-by': [value: SortOption]
   'update:search-query': [value: string]
   'update:view-mode': [value: ViewMode]
+  search: []
 }>()
 </script>

@@ -1,5 +1,5 @@
-import { ref, computed } from 'vue'
-import type { ImageItem, SortOption, AdminStats } from '../types/admin'
+import { ref, computed, watch } from 'vue'
+import type { ImageItem, SortOption, AdminStats, PaginationData, PaginatedImageResponse } from '../types/admin'
 import { useAuth } from '@/composables/useAuth'
 import { ADMIN_URLS } from '@/config/api'
 
@@ -11,40 +11,44 @@ export function useImageManagement() {
   const images = ref<ImageItem[]>([])
   const searchQuery = ref('')
   const sortBy = ref<SortOption>('created_desc')
+  const pagination = ref<PaginationData>({
+    currentPage: 1,
+    totalPages: 1,
+    totalItems: 0,
+    itemsPerPage: 20,
+    hasNextPage: false,
+    hasPrevPage: false
+  })
+  const itemsPerPage = ref(20)
+  const searchTimeout = ref<number | null>(null)
 
-  // 计算属性
+  // 计算属性 - 移除客户端过滤，因为现在由后端处理
   const sortedImages = computed(() => {
-    // 首先根据搜索查询过滤图片
-    let filtered = [...images.value]
-    
-    if (searchQuery.value.trim()) {
-      const query = searchQuery.value.trim().toLowerCase()
-      filtered = filtered.filter(image => {
-        // 搜索文件名（包括原始名称和存储名称）
-        const filename = (image.filename || '').toLowerCase()
-        const originalName = (image.original_name || '').toLowerCase()
-        
-        return filename.includes(query) || originalName.includes(query)
-      })
+    // 直接返回后端返回的数据，后端已经处理了搜索和排序
+    return [...images.value]
+  })
+
+  // 监听搜索查询变化，实现防抖
+  watch(searchQuery, () => {
+    if (searchTimeout.value) {
+      clearTimeout(searchTimeout.value)
     }
-    
-    // 然后根据排序选项排序
-    switch (sortBy.value) {
-      case 'created_desc':
-        return filtered.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-      case 'created_asc':
-        return filtered.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
-      case 'size_desc':
-        return filtered.sort((a, b) => (b.file_size || 0) - (a.file_size || 0))
-      case 'size_asc':
-        return filtered.sort((a, b) => (a.file_size || 0) - (b.file_size || 0))
-      default:
-        return filtered
+
+    searchTimeout.value = window.setTimeout(() => {
+      handleSearch()
+    }, 500)
+  })
+
+  // 监听排序变化
+  watch(sortBy, () => {
+    if (pagination.value) {
+      pagination.value.currentPage = 1
     }
+    loadImages(1)
   })
 
   const stats = computed<AdminStats>(() => ({
-    totalImages: images.value.length,
+    totalImages: pagination.value?.totalItems || 0,
     totalSize: images.value.reduce((total, img) => total + (img.file_size || 0), 0),
     latestUpload: images.value.length === 0 ? null : Math.max(...images.value.map(img => new Date(img.created_at).getTime()))
   }))
@@ -101,10 +105,20 @@ export function useImageManagement() {
   }
 
   // 方法
-  const loadImages = async () => {
+  const loadImages = async (page: number = 1, append: boolean = false) => {
     loading.value = true
     try {
-      const response = await fetch(ADMIN_URLS.IMAGES, {
+      const params = new URLSearchParams({
+        page: page.toString(),
+        limit: itemsPerPage.value.toString(),
+        sort: sortBy.value
+      })
+
+      if (searchQuery.value.trim()) {
+        params.append('search', searchQuery.value.trim())
+      }
+
+      const response = await fetch(`${ADMIN_URLS.IMAGES}?${params}`, {
         headers: {
           'Authorization': `Bearer ${auth.token.value}`,
           'Content-Type': 'application/json',
@@ -115,9 +129,11 @@ export function useImageManagement() {
         throw new Error(`HTTP error! status: ${response.status}`)
       }
 
-      const data = await response.json()
+      const data: any = await response.json()
+      console.log('Raw API response:', data)
+
       if (data.success) {
-        images.value = data.data.map((img: any) => ({
+        const newImages = data.data.map((img: any) => ({
           id: img.id,
           filename: img.filename,
           original_name: img.original_name,
@@ -130,10 +146,39 @@ export function useImageManagement() {
           uploaders: img.uploaders || [] // 直接使用后端返回的uploaders数据
         }))
 
-        console.log('Frontend received images with uploaders:', images.value)
-        
-        // 不再需要单独获取上传者信息，因为后端已经包含了
-        // await loadImageUploaders()
+        if (append) {
+          images.value = [...images.value, ...newImages]
+        } else {
+          images.value = newImages
+        }
+
+        // 检查是否有分页信息
+        if (data.pagination) {
+          console.log('Using backend pagination:', data.pagination)
+          pagination.value = data.pagination
+        } else {
+          // 后端不支持分页，使用客户端分页作为后备方案
+          console.log('Backend does not support pagination, using client-side pagination')
+          const totalItems = data.data.length
+          const totalPages = Math.ceil(totalItems / itemsPerPage.value)
+
+          pagination.value = {
+            currentPage: page,
+            totalPages: totalPages,
+            totalItems: totalItems,
+            itemsPerPage: itemsPerPage.value,
+            hasNextPage: page < totalPages,
+            hasPrevPage: page > 1
+          }
+
+          // 客户端分页：只显示当前页的数据
+          const startIndex = (page - 1) * itemsPerPage.value
+          const endIndex = startIndex + itemsPerPage.value
+          images.value = newImages.slice(startIndex, endIndex)
+        }
+
+        console.log('Final images for current page:', images.value.length)
+        console.log('Final pagination info:', pagination.value)
       } else {
         throw new Error(data.message || '获取图片列表失败')
       }
@@ -146,7 +191,44 @@ export function useImageManagement() {
   }
 
   const refreshImages = () => {
-    loadImages()
+    pagination.value.currentPage = 1
+    loadImages(1)
+  }
+
+  // 分页方法
+  const goToPage = (page: number) => {
+    if (pagination.value && page >= 1 && page <= pagination.value.totalPages) {
+      pagination.value.currentPage = page
+      loadImages(page)
+    }
+  }
+
+  const nextPage = () => {
+    if (pagination.value && pagination.value.hasNextPage) {
+      goToPage(pagination.value.currentPage + 1)
+    }
+  }
+
+  const prevPage = () => {
+    if (pagination.value && pagination.value.hasPrevPage) {
+      goToPage(pagination.value.currentPage - 1)
+    }
+  }
+
+  const changeItemsPerPage = (newLimit: number) => {
+    itemsPerPage.value = newLimit
+    if (pagination.value) {
+      pagination.value.currentPage = 1
+    }
+    loadImages(1)
+  }
+
+  // 重置搜索时回到第一页
+  const handleSearch = () => {
+    if (pagination.value) {
+      pagination.value.currentPage = 1
+    }
+    loadImages(1)
   }
 
   return {
@@ -155,13 +237,20 @@ export function useImageManagement() {
     images,
     searchQuery,
     sortBy,
-    
+    pagination,
+    itemsPerPage,
+
     // 计算属性
     sortedImages,
     stats,
-    
+
     // 方法
     loadImages,
-    refreshImages
+    refreshImages,
+    goToPage,
+    nextPage,
+    prevPage,
+    changeItemsPerPage,
+    handleSearch
   }
 }

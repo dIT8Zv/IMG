@@ -34,3 +34,20 @@ export interface AdminStats {
   totalSize: number
   latestUpload: number | null
 }
+
+// 分页相关类型
+export interface PaginationData {
+  currentPage: number
+  totalPages: number
+  totalItems: number
+  itemsPerPage: number
+  hasNextPage: boolean
+  hasPrevPage: boolean
+}
+
+export interface PaginatedImageResponse {
+  success: boolean
+  data: ImageItem[]
+  pagination: PaginationData
+  message?: string
+}

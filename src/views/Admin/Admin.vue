@@ -81,11 +81,12 @@
           :search-query="searchQuery"
           :view-mode="viewMode"
           :filtered-count="sortedImages.length"
-          :total-count="images.length"
+          :total-count="pagination.totalItems"
           @refresh="refreshImages"
           @update:sort-by="sortBy = $event"
           @update:search-query="searchQuery = $event"
           @update:view-mode="viewMode = $event"
+          @search="handleSearch"
         />
 
         <!-- Images Content -->
@@ -126,6 +127,21 @@
             @delete-image="handleDeleteImage"
           />
         </div>
+
+        <!-- 分页组件 -->
+        <Pagination
+          v-if="!loading && pagination.totalPages > 1"
+          :current-page="pagination.currentPage"
+          :total-pages="pagination.totalPages"
+          :total-items="pagination.totalItems"
+          :items-per-page="itemsPerPage"
+          :has-next-page="pagination.hasNextPage"
+          :has-prev-page="pagination.hasPrevPage"
+          @go-to-page="goToPage"
+          @prev-page="prevPage"
+          @next-page="nextPage"
+          @change-items-per-page="changeItemsPerPage"
+        />
       </div>
 
       <!-- EdgeOne缓存管理内容 -->
@@ -178,6 +194,7 @@ import FullscreenModal from './components/FullscreenModal.vue'
 import EdgeOneManagement from './components/EdgeOneManagement.vue'
 import IPBanManagement from './components/IPBanManagement.vue'
 import EmailManagement from './components/EmailManagement.vue'
+import Pagination from './components/Pagination.vue'
 
 // Composables 导入
 import { useImageManagement } from './composables/useImageManagement'
@@ -198,8 +215,15 @@ const {
   sortBy,
   sortedImages,
   stats,
+  pagination,
+  itemsPerPage,
   loadImages,
-  refreshImages
+  refreshImages,
+  goToPage,
+  nextPage,
+  prevPage,
+  changeItemsPerPage,
+  handleSearch
 } = useImageManagement()
 
 const {
