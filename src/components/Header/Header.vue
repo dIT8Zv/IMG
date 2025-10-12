@@ -6,12 +6,14 @@
   >
     <div class="flex justify-between items-center w-full max-w-[1666px] h-14">
       <div class="logo w-max h-full flex items-center gap-2">
-        <img
-          class="w-auto h-full object-contain"
-          src="/logo.svg"
-          :style="logoStyles"
-        />
-        <a class="text-lg font-bold" href="/">{{ props.title }}</a>
+        <a href="/" class="block w-auto h-full object-contain hover:opacity-80 transition-opacity">
+          <img
+            class="w-auto h-full object-contain"
+            src="/logo.svg"
+            :style="logoStyles"
+          />
+        </a>
+        <a class="text-lg font-bold hover:opacity-80 transition-opacity" href="/">{{ props.title }}</a>
       </div>
       
       <!-- 用户认证区域 -->
