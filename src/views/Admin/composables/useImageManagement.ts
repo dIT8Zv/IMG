@@ -15,11 +15,15 @@ export function useImageManagement() {
     currentPage: 1,
     totalPages: 1,
     totalItems: 0,
-    itemsPerPage: 20,
+    totalSize: 0,
+    totalSizeHuman: '0 B',
+    currentPageSize: 0,
+    currentPageSizeHuman: '0 B',
+    itemsPerPage: 10,
     hasNextPage: false,
     hasPrevPage: false
   })
-  const itemsPerPage = ref(20)
+  const itemsPerPage = ref(10)
   const searchTimeout = ref<number | null>(null)
 
   // 计算属性 - 移除客户端过滤，因为现在由后端处理
