@@ -20,7 +20,7 @@
       <div class="flex items-center justify-between">
         <div class="flex-1 min-w-0">
           <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">存储大小</p>
-          <p class="text-xl sm:text-2xl font-bold text-gray-900 truncate">{{ formatFileSize(stats.totalSize) }}</p>
+          <p class="text-xl sm:text-2xl font-bold text-gray-900 truncate">{{ stats.totalSizeHuman }}</p>
         </div>
         <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gray-100 rounded-lg flex items-center justify-center group-hover:bg-gray-200 transition-colors flex-shrink-0 ml-2">
           <svg class="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -56,14 +56,6 @@ defineProps<{
 }>()
 
 // 工具函数
-const formatFileSize = (bytes: number) => {
-  if (!bytes) return '0 B'
-  const k = 1024
-  const sizes = ['B', 'KB', 'MB', 'GB']
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
-}
-
 const timeAgo = (timestamp: number | null) => {
   if (!timestamp) return '无'
   const now = Date.now()

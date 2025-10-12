@@ -32,6 +32,7 @@ export type ViewMode = 'grid' | 'list'
 export interface AdminStats {
   totalImages: number
   totalSize: number
+  totalSizeHuman: string // 格式化的总存储大小（从后端获取）
   latestUpload: number | null
 }
 
@@ -40,6 +41,10 @@ export interface PaginationData {
   currentPage: number
   totalPages: number
   totalItems: number
+  totalSize: number
+  totalSizeHuman: string
+  currentPageSize: number
+  currentPageSizeHuman: string
   itemsPerPage: number
   hasNextPage: boolean
   hasPrevPage: boolean

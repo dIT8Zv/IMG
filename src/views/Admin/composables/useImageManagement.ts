@@ -49,7 +49,8 @@ export function useImageManagement() {
 
   const stats = computed<AdminStats>(() => ({
     totalImages: pagination.value?.totalItems || 0,
-    totalSize: images.value.reduce((total, img) => total + (img.file_size || 0), 0),
+    totalSize: pagination.value?.totalSize || 0,
+    totalSizeHuman: pagination.value?.totalSizeHuman || '0 B',
     latestUpload: images.value.length === 0 ? null : Math.max(...images.value.map(img => new Date(img.created_at).getTime()))
   }))
 
