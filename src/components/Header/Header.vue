@@ -1,8 +1,16 @@
 <template>
-  <header class="fixed top-0 left-0 box-border px-[16.66px] flex justify-center w-screen h-max backdrop-blur-lg bg-white/96 border-b border-slate-900/10 z-50">
+  <header
+    ref="headerRef"
+    class="fixed top-0 left-0 box-border px-[16.66px] flex justify-center w-screen h-max backdrop-blur-lg bg-white/96 border-b border-slate-900/10 z-50"
+    :style="headerStyles"
+  >
     <div class="flex justify-between items-center w-full max-w-[1666px] h-14">
-      <div class="logo w-max h-full flex items-center gap-4">
-        <img class="w-auto h-3/5 object-contain" src="/icon.jpg" />
+      <div class="logo w-max h-full flex items-center gap-2">
+        <img
+          class="w-auto h-full object-contain"
+          src="/logo.svg"
+          :style="logoStyles"
+        />
         <a class="text-lg font-bold" href="/">{{ props.title }}</a>
       </div>
       
@@ -45,12 +53,13 @@
   </header>
 </template>
 <script setup lang="ts">
-import { computed } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuth } from '@/composables/useAuth'
 
 const props = defineProps(['title'])
 const router = useRouter()
+const headerRef = ref<HTMLElement>()
 
 // 认证相关
 const { isLoggedIn, user, logout: authLogout, openAuthModal } = useAuth()
@@ -58,6 +67,62 @@ const { isLoggedIn, user, logout: authLogout, openAuthModal } = useAuth()
 // 权限检查：权限等级0-2的用户可以访问管理后台
 const isAdmin = computed(() => {
   return isLoggedIn.value && user.value && user.value.permission_level <= 2
+})
+
+// 背景检测相关
+const isDarkBackground = ref(false)
+
+// 检测背景颜色
+const checkBackground = () => {
+  if (!headerRef.value) return
+
+  // 获取header元素
+  const header = headerRef.value
+
+  // 计算header下方的背景
+  const scrollY = window.scrollY
+  const headerHeight = header.offsetHeight
+
+  // 如果页面有滚动，检测header下方的背景
+  if (scrollY > 0) {
+    // 检测页面背景色（这里简化处理，实际项目中可能需要更复杂的逻辑）
+    const bodyStyle = window.getComputedStyle(document.body)
+    const bgColor = bodyStyle.backgroundColor
+
+    // 简单的背景色判断
+    if (bgColor && bgColor.includes('0, 0, 0') || bgColor.includes('rgb(0, 0, 0)')) {
+      isDarkBackground.value = true
+    } else {
+      isDarkBackground.value = false
+    }
+  } else {
+    // 默认白色背景
+    isDarkBackground.value = false
+  }
+}
+
+// 根据背景设置logo的CSS变量
+const logoStyles = computed(() => {
+  if (isDarkBackground.value) {
+    return {
+      '--logo-fill': '#ffffff',
+      '--logo-stroke': '#cccccc',
+      'filter': 'drop-shadow(0 0 8px rgba(255,255,255,0.3))' // 黑色背景下发光效果
+    }
+  } else {
+    return {
+      '--logo-fill': '#000000',
+      '--logo-stroke': '#333333',
+      'filter': 'drop-shadow(0 0 8px rgba(0,0,0,0.1))' // 白色背景下轻微阴影
+    }
+  }
+})
+
+// header的样式（可选：根据背景动态调整header样式）
+const headerStyles = computed(() => {
+  return {
+    transition: 'all 0.3s ease'
+  }
 })
 
 // 退出登录
@@ -69,4 +134,16 @@ const logout = () => {
 const goToAdmin = () => {
   router.push('/admin')
 }
+
+// 监听滚动事件
+onMounted(() => {
+  checkBackground()
+  window.addEventListener('scroll', checkBackground)
+  window.addEventListener('resize', checkBackground)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', checkBackground)
+  window.removeEventListener('resize', checkBackground)
+})
 </script>

@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300" width="1024" height="1024">
+  <style>
+    .logo-fill {
+      fill: var(--logo-fill, #000000);
+      transition: fill 0.3s ease;
+    }
+    .logo-stroke {
+      stroke: var(--logo-stroke, #333333);
+      transition: stroke 0.3s ease;
+    }
+  </style>
+
+  <!-- 定义月亮遮罩 -->
+  <defs>
+    <!-- 月亮遮罩 -->
+    <mask id="moonMask">
+      <rect width="100%" height="100%" fill="white"/>
+      <circle cx="162" cy="150" r="52" fill="black"/>
+    </mask>
+
+    <mask id="moonMask2">
+      <rect width="100%" height="100%" fill="white"/>
+      <circle cx="130" cy="150" r="68" fill="black"/>
+    </mask>
+  </defs>
+
+  <!-- 月亮图标 -->
+  <circle cx="130" cy="150" r="68" class="logo-fill logo-stroke" stroke-width="3" mask="url(#moonMask)"/>
+  <circle cx="162" cy="150" r="52" class="logo-fill logo-stroke" stroke-width="3" mask="url(#moonMask2)"/>
+
+  <!-- 内部边缘 -->
+  <circle cx="162" cy="150" r="52" fill="none" class="logo-stroke" stroke-width="3"/>
+  <circle cx="130" cy="150" r="68" fill="none" class="logo-stroke" stroke-width="3"/>
+</svg>
