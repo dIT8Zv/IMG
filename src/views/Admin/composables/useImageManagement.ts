@@ -167,10 +167,26 @@ export function useImageManagement() {
           const totalItems = data.data.length
           const totalPages = Math.ceil(totalItems / itemsPerPage.value)
 
+          // 计算当前页的存储大小
+          const currentPageSize = newImages.reduce((total: number, img: any) => total + (img.file_size || 0), 0)
+
+          // 格式化存储大小
+          const formatSize = (size: number) => {
+            if (size === 0) return '0 B'
+            const k = 1024
+            const sizes = ['B', 'KB', 'MB', 'GB']
+            const i = Math.floor(Math.log(size) / Math.log(k))
+            return parseFloat((size / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i]
+          }
+
           pagination.value = {
             currentPage: page,
             totalPages: totalPages,
             totalItems: totalItems,
+            totalSize: newImages.reduce((total: number, img: any) => total + (img.file_size || 0), 0),
+            totalSizeHuman: formatSize(newImages.reduce((total: number, img: any) => total + (img.file_size || 0), 0)),
+            currentPageSize: currentPageSize,
+            currentPageSizeHuman: formatSize(currentPageSize),
             itemsPerPage: itemsPerPage.value,
             hasNextPage: page < totalPages,
             hasPrevPage: page > 1
